@@ -1,11 +1,15 @@
 import express from "express"
 import dotenv from "dotenv"
 import { prisma } from "./config/prisma";
-
+import eventRoutes from "./routes/event.routes"
+import bookingroutes from "./routes/booking.routes"
 dotenv.config();
 
 const app= express();
 app.use(express.json());
+
+app.use("/events",eventRoutes);
+app.use("/bookings",bookingroutes);
 
 app.get("/db-check", async (req, res) => {
   const users = await prisma.user.findMany();
