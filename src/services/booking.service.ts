@@ -1,5 +1,7 @@
 import { prisma } from "../config/prisma";
 
+
+
 export const createBooking = async (
   eventId: string,
   seatNumber: number
