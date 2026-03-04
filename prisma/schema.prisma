@@ -33,23 +33,21 @@ model Event {
   location String 
   eventDate  DateTime
   price     Float
-  Totalseat Int
+  totalSeats Int   
   createdAt DateTime  @default(now())
 
   bookings Booking[]
 }
 
 
-model Booking{
-  id String @id@default(uuid())
-  userId String
-  eventId String
+model Booking {
+  id         String   @id @default(uuid())
+  userId     String
+  eventId    String
   seatNumber Int
-  status String @default("PENDING")
-  createdAt DateTime @default(now())
+  status     String   @default("PENDING")
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
 
-  user User @relation(fields:[userId],references:[id])
-  event Event @relation(fields:[eventId],references:[id])
-
-  @@unique([eventId,seatNumber])
+  @@unique([eventId, seatNumber])
 }
