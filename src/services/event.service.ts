@@ -17,3 +17,31 @@ export const getEvents = async (page: number, limit: number) => {
     },
   });
 };
+
+export const searchEvents = async (filters: any) => {
+
+  const where: any = {};
+
+  if (filters.location) {
+    where.location = {
+      contains: filters.location,
+      mode: "insensitive"
+    };
+  }
+
+  if (filters.price) {
+    where.price = Number(filters.price);
+  }
+
+  if (filters.date) {
+    where.eventDate = new Date(filters.date);
+  }
+
+  return prisma.event.findMany({
+    where,
+    orderBy: {
+      eventDate: "asc"
+    }
+  });
+
+};

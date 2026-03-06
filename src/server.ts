@@ -42,9 +42,9 @@ import bookingroutes from "./routes/booking.routes";
 import { errorHandler } from "./middleware/error.middleware";
 import authRoutes from "./routes/auth.routes";
 import { startBookingExpiryJob } from "./jobs/bookingExpiry.job";
-// 1. Add your import up here (adjust the path if yours is different)
-import { connectRedis } from "./config/redis"; 
 
+import { connectRedis } from "./config/redis"; 
+import { apiLimiter } from "./middleware/rateLimit.middleware";
 dotenv.config();
 
 const app = express();
@@ -53,7 +53,7 @@ app.use(express.json());
 app.use("/events", eventRoutes);
 app.use("/bookings", bookingroutes);
 app.use("/auth", authRoutes);
-
+app.use(apiLimiter);
 app.use(errorHandler);
 
 app.get("/db-check", async (req, res) => {

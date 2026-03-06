@@ -36,3 +36,18 @@ export const getEvents = async (
     next(error);
   }
 };
+
+export const searchEvents = async (req: Request, res:Response, next:NextFunction) => {
+  try {
+
+    const events = await eventService.searchEvents(req.query);
+
+    res.json({
+      success: true,
+      data: events
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
