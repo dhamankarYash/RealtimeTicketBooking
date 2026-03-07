@@ -4,8 +4,6 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -16,38 +14,39 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  password String 
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
   createdAt DateTime @default(now())
 
   bookings Booking[]
-
 }
 
 model Event {
-  id    String @id@default(uuid())
-  title  String 
+  id          String   @id @default(uuid())
+  title       String
   description String?
-  location String 
-  eventDate  DateTime
-  price     Float
-  totalSeats Int   
-  createdAt DateTime  @default(now())
+  location    String
+  eventDate   DateTime
+  price       Float
+  totalSeats  Int
+  createdAt   DateTime @default(now())
 
   bookings Booking[]
 }
 
-
 model Booking {
-  id         String   @id @default(uuid())
-  userId     String
+  id         String    @id @default(uuid())
   eventId    String
   seatNumber Int
-  status     String   @default("PENDING")
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
+  userId     String
+  status     String    @default("PENDING")
+  expiresAt  DateTime?
+
+  // 🛠️ THE FIX: Add these two lines to complete the relationship!
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
 
   @@unique([eventId, seatNumber])
 }

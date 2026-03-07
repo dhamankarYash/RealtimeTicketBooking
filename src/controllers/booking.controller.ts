@@ -1,4 +1,4 @@
-import {Request,Response,NextFunction} from "express";
+import { Request, Response, NextFunction } from "express";
 import * as bookingService from "../services/booking.service";
 
 export const createBooking = async (
@@ -7,9 +7,10 @@ export const createBooking = async (
   next: NextFunction
 ) => {
   try {
-    const eventId = req.params.eventId;
+    // 🛠️ FIX: Explicitly tell TypeScript this is a guaranteed string
+    const eventId = req.params.eventId as string;
 
-    if (!eventId || Array.isArray(eventId)) {
+    if (!eventId) {
       return res.status(400).json({
         success: false,
         message: "Invalid eventId",
@@ -20,7 +21,7 @@ export const createBooking = async (
 
     const booking = await bookingService.createBooking(
       eventId,
-      seatNumber
+      Number(seatNumber) // 🛠️ FIX: Guarantee this is a number
     );
 
     res.status(201).json({
@@ -32,11 +33,16 @@ export const createBooking = async (
   }
 };
 
-export const confirmBooking = async (req: Request, res: Response , next:NextFunction) => {
+export const confirmBooking = async (
+  req: Request, 
+  res: Response, 
+  next: NextFunction
+) => {
   try {
-    const bookingId = req.params.bookingId;
+    // 🛠️ FIX: Explicitly tell TypeScript this is a guaranteed string
+    const bookingId = req.params.bookingId as string;
 
-    if (!bookingId || Array.isArray(bookingId)) {
+    if (!bookingId) {
       return res.status(400).json({
         success: false,
         message: "Invalid bookingId",

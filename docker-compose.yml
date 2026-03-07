@@ -1,7 +1,6 @@
 version: "3.9"
 
 services:
-
   backend:
     build: .
     ports:
@@ -9,9 +8,9 @@ services:
     depends_on:
       - postgres
       - redis
-    environment:
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/eventsdb
-      JWT_SECRET: supersecret
+    # 🛠️ FIXED: Moved this here so your Node app gets the REDIS_URL!
+    env_file:
+      - .env  
 
   postgres:
     image: postgres:15
@@ -24,6 +23,8 @@ services:
       - "5432:5432"
 
   redis:
-    image: redis:7
+    image: redis:alpine
+    container_name: realtimeticketbooking-redis
     ports:
       - "6379:6379"
+    # 🛠️ FIXED: Removed the env_file from here

@@ -1,19 +1,19 @@
 import { createClient } from "redis";
 
-export const redisClient = createClient({
-  url: "redis://localhost:6379"
+// 🛠️ THE FIX: Use environment variable first!
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+
+const redisClient = createClient({
+  url: redisUrl,
 });
 
-// FIX: Added ': any' to the err parameter
-redisClient.on("error", (err: any) => {
-  console.log("Redis Error:", err);
-});
+redisClient.on("error", (err) => console.error("Redis Client Error", err));
+redisClient.on("connect", () => console.log("Redis connected successfully!"));
 
 export const connectRedis = async () => {
-  await redisClient.connect();
-  console.log("Redis connected");
+  if (!redisClient.isOpen) {
+    await redisClient.connect();
+  }
 };
 
-import { PrismaClient } from "@prisma/client";
-
-export const prisma = new PrismaClient();
+export default redisClient;
