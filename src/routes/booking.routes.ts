@@ -8,4 +8,7 @@ const router = Router();
 router.post("/:eventId", authMiddleware, createBooking);
 router.post("/:bookingId/confirm", authMiddleware, confirmBooking);
 
+
+
+
 export default router;
