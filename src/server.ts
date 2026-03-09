@@ -8,7 +8,7 @@ import { errorHandler } from "./middleware/error.middleware";
 import { startBookingExpiryJob } from "./jobs/bookingExpiry.job";
 import { connectRedis } from "./config/redis"; 
 import { apiLimiter } from "./middleware/rateLimit.middleware";
-
+import systemRoutes from "./routes/system.routes";
 dotenv.config();
 
 const app = express();
@@ -23,18 +23,11 @@ app.use(apiLimiter);
 app.use("/events", eventRoutes);
 app.use("/bookings", bookingroutes);
 app.use("/auth", authRoutes);
+app.use("/events", eventRoutes);
+app.use("/bookings", bookingroutes);
+app.use("/auth", authRoutes);
+app.use("/system", systemRoutes);
 
-// 4. Utility / Health Check Routes
-app.get("/db-check", async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
-});
-
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
-});
-
-// 5. Global Error Handler (Must be the last middleware!)
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;

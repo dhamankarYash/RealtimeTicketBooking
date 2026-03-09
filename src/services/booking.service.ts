@@ -3,7 +3,8 @@ import redisClient from "../config/redis"; // 🛠️ Import Redis!
 
 export const createBooking = async (
   eventId: string,
-  seatNumber: number
+  seatNumber: number,
+  userId: string // 🛠️ FIX 3: Accept the real userId here
 ) => {
   // 1️⃣ Validate Event & Seat
   const event = await prisma.event.findUnique({
@@ -18,28 +19,26 @@ export const createBooking = async (
   // 2️⃣ THE REDIS DISTRIBUTED LOCK
   const lockKey = `seat:${eventId}:${seatNumber}`;
   
-  // NX: Only set if it does NOT exist. EX: Expire in 300 seconds (5 mins).
   const acquiredLock = await redisClient.set(lockKey, "locked", {
     NX: true,
     EX: 300 
   });
 
-  // If acquiredLock is null, someone else already clicked book!
   if (!acquiredLock) {
     throw new Error("Seat already reserved");
   }
 
   try {
-    // 3️⃣ Try Database Booking (Only happens if we got the lock!)
-    const userId = "ab43f432-12c7-4a46-8343-ccab091bdc7e"; // temp user
+    // 3️⃣ Try Database Booking
+    // 🛠️ FIX 4: Deleted the fake "temp user" variable!
     const expiryTime = new Date(Date.now() + 5 * 60 * 1000); 
 
     return await prisma.booking.create({
       data: {
         eventId,
         seatNumber,
-        userId,
-        expireAt: expiryTime
+        userId, // 🛠️ Uses the real ID passed into the function
+        expiresAt: expiryTime
       },
     });
 
@@ -73,4 +72,26 @@ export const confirmBooking = async (bookingId: string) => {
   await redisClient.del(lockKey);
 
   return confirmedBooking;
+};
+
+export const getBookings = async () => {
+  return prisma.booking.findMany({
+    include: { event: true } // Joins the Event data automatically!
+  });
+};
+
+export const getBookingById = async (id: string) => {
+  const booking = await prisma.booking.findUnique({
+    where: { id },
+    include: { event: true }
+  });
+  if (!booking) throw new Error("Booking not found");
+  return booking;
+};
+
+export const cancelBooking = async (id: string) => {
+  return prisma.booking.update({
+    where: { id },
+    data: { status: "CANCELLED" }
+  });
 };

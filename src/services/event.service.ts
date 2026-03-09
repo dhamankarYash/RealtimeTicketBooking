@@ -60,3 +60,28 @@ export const searchEvents = async (filters: any) => {
     }
   });
 };
+
+export const getEventById = async (id: string) => {
+  const event = await prisma.event.findUnique({ where: { id } });
+  if (!event) throw new Error("Event not found");
+  return event;
+};
+
+export const updateEvent = async (id: string, data: any) => {
+  return prisma.event.update({
+    where: { id },
+    data,
+  });
+};
+
+export const deleteEvent = async (id: string) => {
+  // 1️⃣ First, delete all bookings associated with this event
+  await prisma.booking.deleteMany({
+    where: { eventId: id }
+  });
+
+  // 2️⃣ Now that the event is "empty", it is safe to delete it!
+  return prisma.event.delete({ 
+    where: { id } 
+  });
+};

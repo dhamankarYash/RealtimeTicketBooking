@@ -51,3 +51,30 @@ export const searchEvents = async (req: Request, res:Response, next:NextFunction
     next(error);
   }
 };
+
+export const getEventById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const event = await eventService.getEventById(req.params.id as string);
+    res.status(200).json({ success: true, data: event });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateEvent = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const event = await eventService.updateEvent(req.params.id as string, req.body);
+    res.status(200).json({ success: true, data: event });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteEvent = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await eventService.deleteEvent(req.params.id as string);
+    res.status(200).json({ success: true, message: "Event deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
