@@ -74,6 +74,9 @@ export const updateEvent = async (id: string, data: any) => {
   });
 };
 
+
+
+
 export const deleteEvent = async (id: string) => {
   // 1️⃣ First, delete all bookings associated with this event
   await prisma.booking.deleteMany({
