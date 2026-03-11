@@ -78,3 +78,15 @@ export const deleteEvent = async (req: Request, res: Response, next: NextFunctio
     next(error);
   }
 };
+
+export const getPopularEvents = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const events = await eventService.getPopularEvents();
+    res.status(200).json({
+      success: true,
+      data: events
+    });
+  } catch (error) {
+    next(error);
+  }
+};

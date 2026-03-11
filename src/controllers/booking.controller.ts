@@ -86,3 +86,15 @@ export const cancelBooking = async (req: Request, res: Response, next: NextFunct
     next(error);
   }
 };
+
+export const getBookingStats = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const stats = await bookingService.getBookingStats();
+    res.status(200).json({
+      success: true,
+      data: stats
+    });
+  } catch (error) {
+    next(error);
+  }
+};

@@ -95,3 +95,28 @@ export const cancelBooking = async (id: string) => {
     data: { status: "CANCELLED" }
   });
 };
+
+// 📊 NEW: Database Aggregation
+export const getBookingStats = async () => {
+  // 1. Get total number of bookings
+  const totalBookings = await prisma.booking.count();
+
+  // 2. Query Optimization: Group By Status (PENDING, CONFIRMED, EXPIRED)
+  const statusCounts = await prisma.booking.groupBy({
+    by: ['status'],
+    _count: {
+      status: true,
+    },
+  });
+
+  // Clean up the output structure
+  const breakdown = statusCounts.map(item => ({
+    status: item.status,
+    count: item._count.status
+  }));
+
+  return {
+    totalBookings,
+    breakdown
+  };
+};

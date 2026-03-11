@@ -35,18 +35,19 @@ export const getEvents = async (page: number, limit: number) => {
   return events;
 };
 
+// 🛠️ UPGRADED: Now handles Price Ranges (min/max) and partial location matching
 export const searchEvents = async (filters: any) => {
   const where: any = {};
 
   if (filters.location) {
-    where.location = {
-      contains: filters.location,
-      mode: "insensitive"
-    };
+    where.location = { contains: filters.location, mode: "insensitive" };
   }
 
-  if (filters.price) {
-    where.price = Number(filters.price);
+  // 📈 Advanced Filtering: Greater than / Less than
+  if (filters.minPrice || filters.maxPrice) {
+    where.price = {};
+    if (filters.minPrice) where.price.gte = Number(filters.minPrice);
+    if (filters.maxPrice) where.price.lte = Number(filters.maxPrice);
   }
 
   if (filters.date) {
@@ -55,10 +56,42 @@ export const searchEvents = async (filters: any) => {
 
   return prisma.event.findMany({
     where,
+    orderBy: { eventDate: "asc" }
+  });
+};
+
+// 🌟 NEW: Analytics & Query Optimization + Redis Cache
+export const getPopularEvents = async () => {
+  const cacheKey = "events:popular";
+  
+  // 1. Check Cache First (Analytics are heavy, cache them!)
+  const cachedPopular = await redisClient.get(cacheKey);
+  if (cachedPopular) {
+    console.log("🚀 Cache HIT: Returning popular events");
+    return JSON.parse(cachedPopular);
+  }
+
+  console.log("🐌 Cache MISS: Calculating popular events in DB");
+  
+  // 2. Query Optimization: Let Postgres count the relations instead of Node.js
+  const popularEvents = await prisma.event.findMany({
+    take: 5, // Top 5
     orderBy: {
-      eventDate: "asc"
+      bookings: {
+        _count: "desc" // Sort by most bookings
+      }
+    },
+    include: {
+      _count: {
+        select: { bookings: true } // Return the exact count in the response
+      }
     }
   });
+
+  // 3. Cache the result for 5 minutes
+  await redisClient.setEx(cacheKey, 300, JSON.stringify(popularEvents));
+
+  return popularEvents;
 };
 
 export const getEventById = async (id: string) => {
