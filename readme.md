@@ -82,27 +82,31 @@ AWS EC2 | Cloud hosting |
 
 # 📡 API Endpoints
 
-### Authentication
+### 🔐 Authentication
+* `POST /auth/register`
+* `POST /auth/login` 
 
-```
-POST /auth/register
-POST /auth/login
-```
+### 🩺 System & Infrastructure
+* `GET /system/health` 
+* `GET /system/redis/status` 
+* `GET /system/info` 
 
-### Events
+### 📅 Events (Public & Admin)
+* `POST /events` 
+* `GET /events` 
+* `GET /events/search` (Supports `minPrice` & `maxPrice`)
+* `GET /events/popular` (Aggregated & Cached)
+* `GET /events/:id` 
+* `PATCH /events/:id` 
+* `DELETE /events/:id` (Cascades to bookings)
 
-```
-GET /events
-GET /events?location=mumbai
-GET /events?price=500
-```
-
-### Booking
-
-```
-POST /bookings/:eventId
-POST /bookings/:bookingId/confirm
-```
+### 🎟️ Bookings (Protected by JWT)
+* `GET /bookings` 
+* `GET /bookings/stats` (Aggregated status breakdown)
+* `GET /bookings/:id` 
+* `POST /bookings/:eventId` (Triggers Redis Lock)
+* `POST /bookings/:bookingId/confirm` 
+* `DELETE /bookings/:id`
 
 ---
 
